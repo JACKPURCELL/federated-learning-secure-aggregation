@@ -82,6 +82,8 @@ if MODE == 2:
 
 # Get current try
 res = rq.get(SERVER_IP+'/tries/current')
+print("res",res)
+
 initialParams = res.json()
 idTry = str(initialParams['idTry'])
 
@@ -118,10 +120,14 @@ SuPK = SuSK.public_key().public_bytes(
 )
 
 keys = {'CuPK': str(CuPK, "utf-8"), 'SuPK': str(SuPK, "utf-8")}
+print("keys",keys)
 keys_json = json.dumps(keys)
+print("keys_json",keys_json)
+
 
 # Send public keys to server
 res = rq.post(SERVER_IP+'/tries/'+idTry+'/rounds/0/public-keys?userId='+str(idUser), data=keys_json, headers=HEADERS)
+print("res",res)
 
 ############## ROUND 1 ##############
 
@@ -195,6 +201,9 @@ reqData = {
     'ciphertexts': ciphertexts,
 }
 reqJson = json.dumps(reqData)
+print("reqData",reqData)
+print("reqJson",reqJson)
+
 res = rq.post(SERVER_IP+'/tries/'+idTry+'/rounds/1/ciphertexts?userId='+str(idUser), data=reqJson, headers=HEADERS)
 
 ############## ROUND 2 ##############
@@ -202,6 +211,7 @@ res = rq.post(SERVER_IP+'/tries/'+idTry+'/rounds/1/ciphertexts?userId='+str(idUs
 # Get U2 the list of ciphertexts from all clients
 url = SERVER_IP + '/tries/' + idTry + '/rounds/2/ciphertexts?userId=' + str(idUser)
 res = rq.get(url)
+print("res",res)
 
 if randrange(0,100) >= 90:
     print('Client ' + str(idUser) + ': internet connection lost. EXIT.')
@@ -277,6 +287,10 @@ maskedVector += pu
 # https://stackoverflow.com/a/6485943
 
 maskedVectorEncoded = base64.b64encode(maskedVector)
+print("maskedVector",maskedVector)
+print("maskedVectorEncoded",maskedVectorEncoded)
+
+
 res = rq.post(SERVER_IP+'/tries/'+idTry+'/rounds/2/masked-vector?userId='+str(idUser), data=maskedVectorEncoded)
 
 ############## ROUND 3 ##############
@@ -288,6 +302,7 @@ res = rq.post(SERVER_IP+'/tries/'+idTry+'/rounds/2/masked-vector?userId='+str(id
 # Get U4 the list of ciphertexts from all clients
 url = SERVER_IP + '/tries/' + idTry + '/rounds/4/user-list'
 res = rq.get(url)
+print("res",res)
 
 while res.status_code != 200:
     res = rq.get(url)
@@ -322,5 +337,7 @@ for clientU2 in clientsU2:
 
 resClientU4Json = json.dumps(resClientU4)
 res = rq.post(SERVER_IP+'/tries/'+idTry+'/rounds/4/shares?userId='+str(idUser), data=resClientU4Json, headers=HEADERS)
+print("resClientU4",resClientU4)
+print("resClientU4Json",resClientU4Json)
 
 print('Client ' + str(idUser) + ' finished.')
